@@ -89,3 +89,5 @@ struct RDiff : public RAccBase<T>
         return RAccBase<T>::values[RAccBase<T>::getIndex(-1)] - RAccBase<T>::values[RAccBase<T>::getIndex()];
     }
 };
+
+/* vim: set ts=4 sts=4 sw=4 et: */

@@ -119,3 +119,5 @@ struct ViewportHandler
         return state.transform.transformPoint(world_pos);
     }
 };
+
+/* vim: set ts=4 sts=4 sw=4 et: */

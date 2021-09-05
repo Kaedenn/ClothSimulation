@@ -35,3 +35,5 @@ sf::Vector2f toVector2f(sf::Vector2<T> v)
 {
     return {to<float>(v.x), to<float>(v.y)};
 }
+
+/* vim: set ts=4 sts=4 sw=4 et: */

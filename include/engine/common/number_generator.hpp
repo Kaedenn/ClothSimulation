@@ -155,3 +155,5 @@ using RNGi32 = RNGi<int32_t>;
 using RNGi64 = RNGi<int64_t>;
 using RNGu32 = RNGi<uint32_t>;
 using RNGu64 = RNGi<uint64_t>;
+
+/* vim: set ts=4 sts=4 sw=4 et: */

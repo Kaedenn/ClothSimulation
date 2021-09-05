@@ -59,26 +59,11 @@ struct config {
     bool disable_default_wind;
 };
 
-
 config parseCommandLineArguments(int argc, char* argv[]);
 
+bool isInRadius(const Particle& p, sf::Vector2f center, float radius);
 
-bool isInRadius(const Particle& p, sf::Vector2f center, float radius)
-{
-    const sf::Vector2f v = center - p.position;
-    return v.x * v.x + v.y * v.y < radius * radius;
-}
-
-
-void applyForceOnCloth(sf::Vector2f position, float radius, sf::Vector2f force, PhysicSolver& solver)
-{
-    for (Particle& p : solver.objects) {
-        if (isInRadius(p, position, radius)) {
-            p.forces += force;
-        }
-    }
-}
-
+void applyForceOnCloth(sf::Vector2f position, float radius, sf::Vector2f force, PhysicSolver& solver);
 
 int main(int argc, char* argv[])
 {
@@ -248,3 +233,21 @@ config parseCommandLineArguments(int argc, char* argv[])
     return conf;
 }
 
+
+bool isInRadius(const Particle& p, sf::Vector2f center, float radius)
+{
+    const sf::Vector2f v = center - p.position;
+    return v.x * v.x + v.y * v.y < radius * radius;
+}
+
+
+void applyForceOnCloth(sf::Vector2f position, float radius, sf::Vector2f force, PhysicSolver& solver)
+{
+    for (Particle& p : solver.objects) {
+        if (isInRadius(p, position, radius)) {
+            p.forces += force;
+        }
+    }
+}
+
+/* vim: set ts=4 sts=4 sw=4 et: */
