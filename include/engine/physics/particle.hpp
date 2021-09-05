@@ -11,6 +11,7 @@ struct Particle
     sf::Vector2f position_old;
     sf::Vector2f velocity;
     sf::Vector2f forces;
+    sf::Color color = sf::Color::White;
     bool moving = true;
 
     Particle() = default;

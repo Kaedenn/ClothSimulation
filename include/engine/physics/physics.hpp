@@ -5,6 +5,9 @@
 #include "engine/common/utils.hpp"
 #include "constraints.hpp"
 
+const float GRAVITY_X_DEFAULT = 0.0f;
+const float GRAVITY_Y_DEFAULT = 1500.0f;
+const float FRICTION_DEFAULT = 0.5f;
 
 struct PhysicSolver
 {
@@ -13,10 +16,17 @@ struct PhysicSolver
     // Simulator iterations count
     uint32_t solver_iterations;
     uint32_t sub_steps;
+    // Physics parameters
+    sf::Vector2f gravity;
+    float friction_coef;
 
-    PhysicSolver()
+    PhysicSolver(float gx=GRAVITY_X_DEFAULT,
+                 float gy=GRAVITY_Y_DEFAULT,
+                 float fc=FRICTION_DEFAULT)
         : solver_iterations(1)
         , sub_steps(16)
+        , gravity(gx, gy)
+        , friction_coef(fc)
     {}
 
     void update(float dt)
@@ -34,7 +44,6 @@ struct PhysicSolver
 
     void applyGravity()
     {
-        const sf::Vector2f gravity(0.0f, 1500.0f);
         for (Particle& p : objects) {
             p.forces += gravity * p.mass;
         }
@@ -42,7 +51,6 @@ struct PhysicSolver
 
     void applyAirFriction()
     {
-        const float friction_coef = 0.5f;
         for (Particle& p : objects) {
             p.forces -= p.velocity * friction_coef;
         }

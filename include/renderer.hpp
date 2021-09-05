@@ -21,7 +21,9 @@ struct Renderer
         for (uint32_t i(0); i<links_count; ++i) {
             LinkConstraint& current_link = solver.constraints.data[i];
             va[2 * i    ].position = current_link.particle_1->position;
+            va[2 * i    ].color = current_link.particle_1->color;
             va[2 * i + 1].position = current_link.particle_2->position;
+            va[2 * i + 1].color = current_link.particle_2->color;
         }
     }
 
