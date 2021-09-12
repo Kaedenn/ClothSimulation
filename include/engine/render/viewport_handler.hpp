@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
+const float BASE_ZOOM_DEFAULT = 1.0f;
 
 struct ViewportHandler
 {
@@ -14,7 +15,7 @@ struct ViewportHandler
         sf::Vector2f mouse_world_position;
         sf::Transform transform;
 
-        State(sf::Vector2f render_size, const float base_zoom = 1.0f)
+        State(sf::Vector2f render_size, const float base_zoom = BASE_ZOOM_DEFAULT)
             : center(render_size.x * 0.5f, render_size.y * 0.5f)
             , offset(center / base_zoom)
             , zoom(base_zoom)
@@ -33,8 +34,8 @@ struct ViewportHandler
         void updateMousePosition(sf::Vector2f new_position)
         {
             mouse_position = new_position;
-            const sf::Vector2f pos(static_cast<float>(new_position.x), static_cast<float>(new_position.y));
-            mouse_world_position = offset + (pos - center) / zoom;
+            const sf::Vector2f pos(new_position);
+            mouse_world_position = offset + (mouse_position - center) / zoom;
         }
     };
 

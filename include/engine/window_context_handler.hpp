@@ -66,6 +66,11 @@ public:
     {
         m_window.display();
     }
+
+    ViewportHandler::State getState() const
+    {
+        return m_viewport_handler.state;
+    }
     
 private:
     sf::RenderWindow& m_window;

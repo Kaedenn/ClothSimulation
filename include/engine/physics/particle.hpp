@@ -22,6 +22,12 @@ struct Particle
     , position_old(pos)
     {}
 
+    Particle(float mass, sf::Vector2f pos)
+    : mass(mass)
+    , position(pos)
+    , position_old(pos)
+    {}
+
     void update(float dt)
     {
         if (!moving) return;
