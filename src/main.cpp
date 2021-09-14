@@ -1,14 +1,12 @@
 #include "config.hpp"
-#include "engine/window_context_handler.hpp"
-#include "engine/physics/physics.hpp"
-#include "renderer.hpp"
-#include "wind.hpp"
 
 /* TODO: Command-line handling
  *  wind definition(s):
  *    tuple<3, V2f> wind_defn (multi)
  *  initial focus (RenderContext::setFocus(sf::Vector2f focus))
  *  initial zoom (RenderContext::setZoom(float zoom))
+ *  have command-line values override configuration file
+ *    requires removing default values (or prepopulating them with config file values)
  * TODO: fix initial focus center to work regardless of cloth height
  * TODO: swap move and cut (cut=lmb, move=mmb)?
  *  cut: lmb?
@@ -22,8 +20,6 @@
 bool isInRadius(const Particle& p, sf::Vector2f center, float radius);
 
 void applyForceOnCloth(sf::Vector2f position, float radius, sf::Vector2f force, PhysicSolver& solver);
-
-void buildCloth(PhysicSolver& solver, const config& conf);
 
 int main(int argc, char* argv[])
 {
@@ -47,7 +43,7 @@ int main(int argc, char* argv[])
     PhysicSolver solver(conf.gravity_x, conf.gravity_y, conf.friction_coef);
     Renderer renderer(solver);
 
-    buildCloth(solver, conf);
+    conf.buildCloth(solver);
 
     app.getRenderContext().setZoom(conf.initial_zoom);
 
@@ -90,18 +86,24 @@ int main(int argc, char* argv[])
     */
 
     WindManager wind(to<float>(conf.window_width));
-    if (!conf.disable_default_wind) {
-        // Add 2 wind waves
-        wind.winds.emplace_back(
-            sf::Vector2f(100.0f, conf.window_height),
-            sf::Vector2f(0.0f, 0.0f),
-            sf::Vector2f(1000.0f, 0.0f)
-        );
-        wind.winds.emplace_back(
-            sf::Vector2f(20.0f, conf.window_height),
-            sf::Vector2f(0.0f, 0.0f),
-            sf::Vector2f(3000.0f, 0.0f)
-        );
+    if (conf.winds.size() == 0) {
+        if (!conf.disable_default_wind) {
+            // Add 2 wind waves
+            wind.winds.emplace_back(
+                sf::Vector2f(100.0f, conf.window_height),
+                sf::Vector2f(0.0f, 0.0f),
+                sf::Vector2f(1000.0f, 0.0f)
+            );
+            wind.winds.emplace_back(
+                sf::Vector2f(20.0f, conf.window_height),
+                sf::Vector2f(0.0f, 0.0f),
+                sf::Vector2f(3000.0f, 0.0f)
+            );
+        }
+    } else {
+        for (const Wind& w : conf.winds) {
+            wind.winds.push_back(w);
+        }
     }
 
     // Main loop
@@ -139,39 +141,6 @@ int main(int argc, char* argv[])
     }
 
     return 0;
-}
-
-void buildCloth(PhysicSolver& solver, const config& conf)
-{
-    /* TODO: Empty existing items
-    if (solver.objects.size() > 0) {
-        for (Particle& p : solver.objects) {
-            solver.objects.erase(p.id);
-            solver.removeBrokenLinks();
-        }
-    }
-    */
-    const float start_x = (conf.window_width - (conf.cloth_width - 1) * conf.links_length) * 0.5f;
-    for (uint32_t y = 0; y < conf.cloth_height; ++y) {
-        const float max_elongation = 1.2f * (2.0f - y / float(conf.cloth_height));
-        for (uint32_t x = 0; x < conf.cloth_width; ++x) {
-            const civ::ID id = solver.addParticle(
-                sf::Vector2f(start_x + x * conf.links_length, y * conf.links_length)
-            );
-            // Add left link if there is a particle on the left
-            if (x > 0) {
-                solver.addLink(id-1, id, max_elongation * 0.9f);
-            }
-            // Add top link if there is a particle on the top
-            if (y > 0) {
-                solver.addLink(id-conf.cloth_width, id, max_elongation);
-            } else {
-                // If not, pin the particle
-                solver.objects[id].moving = false;
-            }
-        }
-    }
-
 }
 
 bool isInRadius(const Particle& p, sf::Vector2f center, float radius)

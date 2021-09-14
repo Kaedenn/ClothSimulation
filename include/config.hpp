@@ -1,5 +1,24 @@
 /* Configuration management */
 
+/* JSON configuration format:
+{
+  "size": Vector2<int>,
+  "length": links_length,
+  "friction": friction_coef,
+  "gravity": Vector2<float>,
+  "wind": [
+    []
+  ],
+  "structure": {
+    "nodes": [],
+    "pins": []
+  }
+}
+
+Vectors can be specified one of two ways: [x, y] and {"x": x, "y": y}
+
+ */
+
 #include <sstream>
 #include <iostream>
 #include <iomanip>
@@ -65,6 +84,7 @@ struct config {
     float mouse_drag_force;
     float initial_zoom;
     std::string cloth_definition_path;
+    std::vector<Wind> winds;
 
     /* Parse command-line arguments and return a status; 0 = success */
     Status parseCommandLineArguments(int argc, char* argv[]);
@@ -72,12 +92,23 @@ struct config {
     /* Parse a JSON configuration file and return a status; 0 = success */
     Status parseConfigurationFile(const std::string& fpath);
 
+    /* Build the cloth based on the current configuration */
+    void buildCloth(PhysicSolver& solver) const;
+
     /* Dump the current values to the given ostream */
     void print(std::ostream& os) const;
 
 private:
     /* Extract values from the given json object */
     Status interpretJSON(const json& jobj);
+
+    /* Interpret a value as a V2f */
+    template <typename T>
+    sf::Vector2<T> interpretVecJSON(const json& item) const;
+
+    /* Interpret value as a V2f with nulls interpreted as defaults */
+    template <typename T>
+    sf::Vector2<T> interpretVecJSON(const json& item, const T& xdef, const T& ydef) const;
 };
 
 /* vim: set ts=4 sts=4 sw=4 et: */
