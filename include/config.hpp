@@ -2,12 +2,16 @@
 
 /* JSON configuration format:
 {
-  "size": Vector2<int>,
-  "length": links_length,
-  "friction": friction_coef,
-  "gravity": Vector2<float>,
+  "size": Vector2<int>,             cloth dimensions
+  "length": float,                  length of each link
+  "friction": float,                friction coefficient
+  "gravity": Vector2<float>,        gravity force vector
   "wind": [
-    []
+    [
+        Vector2<float>,             wind region width and height
+        Vector2<float>,             wind region position
+        Vector2<float>              wind force vector
+    ]
   ],
   "structure": {
     "nodes": [],
@@ -16,6 +20,13 @@
 }
 
 Vectors can be specified one of two ways: [x, y] and {"x": x, "y": y}
+
+Both wind region size and wind region position allow nulls for x and/or y with
+the following default values:
+    null region width -> 0.0f
+    null region height -> window_height
+    null region x position -> 0.0f
+    null region y position -> 0.0f
 
  */
 
@@ -102,13 +113,14 @@ private:
     /* Extract values from the given json object */
     Status interpretJSON(const json& jobj);
 
-    /* Interpret a value as a V2f */
+    /* Interpret a value as a V2 */
     template <typename T>
-    sf::Vector2<T> interpretVecJSON(const json& item) const;
+    sf::Vector2<T> interpretVec2JSON(const json& item) const;
 
-    /* Interpret value as a V2f with nulls interpreted as defaults */
+    /* Interpret value as a V2 with nulls interpreted as defaults */
     template <typename T>
-    sf::Vector2<T> interpretVecJSON(const json& item, const T& xdef, const T& ydef) const;
+    sf::Vector2<T> interpretVec2JSON(const json& item, const T& v0def, const T& v1def) const;
+
 };
 
 /* vim: set ts=4 sts=4 sw=4 et: */

@@ -1,8 +1,6 @@
 #include "config.hpp"
 
-/* TODO: Command-line handling
- *  wind definition(s):
- *    tuple<3, V2f> wind_defn (multi)
+/* TODO: Command-line and configuration handling
  *  initial focus (RenderContext::setFocus(sf::Vector2f focus))
  *  initial zoom (RenderContext::setZoom(float zoom))
  *  have command-line values override configuration file

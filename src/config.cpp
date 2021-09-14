@@ -71,6 +71,21 @@ Status config::parseCommandLineArguments(int argc, char* argv[])
     } catch (const po::error& err) {
         std::cerr << "failed to parse command-line: " << err.what() << std::endl;
         status = config::Status::ERROR;
+#ifndef NDEBUG
+        throw;
+#endif
+    } catch (const json::exception& err) {
+        std::cerr << "failed to parse configuration: " << err.what() << std::endl;
+        status = config::Status::ERROR;
+#ifndef NDEBUG
+        throw;
+#endif
+    } catch (const std::logic_error& err) {
+        std::cerr << "failed to parse configuration: " << err.what() << std::endl;
+        status = config::Status::ERROR;
+#ifndef NDEBUG
+        throw;
+#endif
     }
 
     return status;
@@ -146,10 +161,11 @@ void config::print(std::ostream& os) const
     }
 }
 
+/** Interpret a JSON object and update the configuration accordingly */
 Status config::interpretJSON(const json& jobj)
 {
     if (jobj.contains("size")) {
-        const sf::Vector2<int> size = interpretVecJSON<int>(jobj["size"]);
+        const sf::Vector2<int> size = interpretVec2JSON<int>(jobj["size"]);
         cloth_width = size.x;
         cloth_height = size.y;
     }
@@ -160,27 +176,27 @@ Status config::interpretJSON(const json& jobj)
         friction_coef = jobj["friction"];
     }
     if (jobj.contains("gravity")) {
-        const sf::Vector2f gravity = interpretVecJSON<float>(jobj["gravity"]);
+        const sf::Vector2f gravity = interpretVec2JSON<float>(jobj["gravity"]);
         gravity_x = gravity.x;
         gravity_y = gravity.y;
     }
     if (jobj.contains("wind")) {
         for (auto item : jobj["wind"]) {
             if (!item.is_array() || item.size() != 3) {
-                throw std::logic_error("Failed to parse wind " + std::string(item)
-                                       + "; not an array of size 3");
+                throw std::logic_error("Failed to parse wind " + std::string(item) + "; not an array of size 3");
             }
-            const sf::Vector2f wind_s = interpretVecJSON<float>(item.at(0), 0.0f, to<float>(window_height));
-            const sf::Vector2f wind_p = interpretVecJSON<float>(item.at(1), 0.0f, 0.0f);
-            const sf::Vector2f wind_f = interpretVecJSON<float>(item.at(2));
+            const sf::Vector2f wind_s = interpretVec2JSON<float>(item.at(0), 0.0f, to<float>(window_height));
+            const sf::Vector2f wind_p = interpretVec2JSON<float>(item.at(1), 0.0f, 0.0f);
+            const sf::Vector2f wind_f = interpretVec2JSON<float>(item.at(2));
             winds.emplace_back(wind_s, wind_p, wind_f);
         }
     }
     return Status::OK;
 }
 
+/** Interpret the JSON object as a vector of two items */
 template <typename T>
-sf::Vector2<T> config::interpretVecJSON(const json& item) const
+sf::Vector2<T> config::interpretVec2JSON(const json& item) const
 {
     if (item.is_array() && item.size() == 2) {
         const T& v0 = item["/0"_json_pointer];
@@ -194,8 +210,9 @@ sf::Vector2<T> config::interpretVecJSON(const json& item) const
     throw std::logic_error("Failed to parse Vector2 from JSON: " + std::string(item));
 }
 
+/** Interpret the JSON object as a vector of two items with defaults */
 template <typename T>
-sf::Vector2<T> config::interpretVecJSON(const json& item, const T& xdef, const T& ydef) const
+sf::Vector2<T> config::interpretVec2JSON(const json& item, const T& v0def, const T& v1def) const
 {
     json::json_pointer p0, p1;
     if (item.is_array() && item.size() == 2) {
@@ -209,8 +226,8 @@ sf::Vector2<T> config::interpretVecJSON(const json& item, const T& xdef, const T
     }
     const json& i0 = item[p0];
     const json& i1 = item[p1];
-    const T& v0 = i0.is_null() ? xdef : to<T>(i0);
-    const T& v1 = i1.is_null() ? ydef : to<T>(i1);
+    const T& v0 = i0.is_null() ? v0def : to<T>(i0);
+    const T& v1 = i1.is_null() ? v1def : to<T>(i1);
     return sf::Vector2<T>(v0, v1);
 }
 

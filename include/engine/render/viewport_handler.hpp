@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 
 const float BASE_ZOOM_DEFAULT = 1.0f;
+const float WHELL_SCROLL_AMOUNT = 1.2f;
 
 struct ViewportHandler
 {
@@ -41,8 +42,8 @@ struct ViewportHandler
 
     State state;
 
-    ViewportHandler(sf::Vector2f size)
-        : state(size)
+    ViewportHandler(sf::Vector2f size, const float base_zoom = BASE_ZOOM_DEFAULT)
+        : state(size, base_zoom)
     {
         state.updateState();
     }
@@ -62,7 +63,7 @@ struct ViewportHandler
     void wheelZoom(float w)
     {
         if (w) {
-            const float zoom_amount = 1.2f;
+            const float zoom_amount = WHELL_SCROLL_AMOUNT;
             const float delta = w > 0 ? zoom_amount : 1.0f / zoom_amount;
             zoom(delta);
         }
